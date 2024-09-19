@@ -14,5 +14,6 @@
 ![Exercicio 5 - comandos de PV](./assets/ex5_pv_pvc_.png)
 - Exercício 6
 ![nginxClusterIP](/assets/ex6_nginx_svc.png)
+
 - Está respondento no nodePort do Kind, que faz o Bind com a 8080 do host
-![nginxNodePort](./ex6_nginx_nodeport.png)
+![nginxNodePort](./assets/ex6_nginx_nodeport.png)
