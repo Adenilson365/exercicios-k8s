@@ -1,0 +1,106 @@
+apiVersion: v1 
+kind: Namespace
+metadata:
+  name: block-ns
+--- 
+apiVersion: v1 
+kind: Namespace
+metadata:
+  name: allow-ns
+  labels:
+    access: allow
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu
+  namespace: allow-ns
+  labels:
+    app: ubuntu-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-app
+  template:
+    metadata:
+      labels:
+        app: ubuntu-app
+    spec:
+      containers:
+      - name: ubuntu
+        image: ubuntu:latest
+        command: ["/bin/bash", "-c", "apt-get update && apt-get install -y curl && while true; do sleep 30; done"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu
+  namespace: block-ns
+  labels:
+    app: ubuntu-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-app
+  template:
+    metadata:
+      labels:
+        app: ubuntu-app
+    spec:
+      containers:
+      - name: ubuntu
+        image: ubuntu:latest
+        command: ["/bin/bash", "-c", "apt-get update && apt-get install -y curl && while true; do sleep 30; done"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx-cont
+        image: nginx:alpine3.20-perl
+        ports:
+        - containerPort: 80
+  replicas: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            access: allow
+--- 

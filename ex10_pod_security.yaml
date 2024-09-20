@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-app
+  template:
+    metadata:
+      labels:
+        app: ubuntu-app
+    spec:
+      securityContext: 
+        runAsNonRoot: true
+        runAsUser: 1000 #roda com userid 1000 (nessa imagem é ubuntu)
+        runAsGroup: 1000
+      containers:
+      - name: ubuntu
+        image: ubuntu:latest
+        command: ["/bin/bash", "-c", "while true; do sleep 30; done"]
