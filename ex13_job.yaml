@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unique-job
+spec:
+  ttlSecondsAfterFinished: 60
+  completions: 1
+  backoffLimit: 4
+  template:
+    spec:
+      containers:
+      - name: unique-job
+        image: ubuntu:24.10
+        command: ["/bin/bash", "-c", "mkdir /data/$(%date +%s)"]
+      restartPolicy: Never

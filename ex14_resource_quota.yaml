@@ -1,0 +1,41 @@
+apiVersion: v1 
+kind: Namespace
+metadata:
+  name: quota 
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota-objects
+  namespace: quota
+spec:
+  hard:
+    pods: "6" # 6 pods
+    requests.cpu: "2" # 2 cores ou 2 CPUs ou 2000m
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-quota
+  namespace: quota
+spec:
+  selector:
+    matchLabels:
+      app: quota
+  template:
+    metadata:
+      labels:
+        app: quota
+    spec:
+      containers:
+      - name: quota-cont
+        image: ubuntu:24.10
+        command: ["/bin/bash", "-c", "while true; do sleep 30; done"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m" # 0.5 cores ou meia CPU
+          limits:
+            memory: "128Mi"
+            cpu: "500m" # 0.5 cores ou meia CPU
+  replicas: 10

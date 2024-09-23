@@ -1,0 +1,24 @@
+apiVersion: batch/v1 
+kind: CronJob
+metadata:
+  name: cronjob 
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 30
+      template:
+        spec:
+          containers:
+          - name: unique-job
+            image: ubuntu:24.10
+            command: ["/bin/bash", "-c", "echo $(date +%H:%M:%S) >> /data/teste.job"]
+            volumeMounts:
+            - name: data
+              mountPath: /data
+          volumes:
+          - name: data
+            hostPath: 
+              type: DirectoryOrCreate
+              path: /data/jobs
+          restartPolicy: Never

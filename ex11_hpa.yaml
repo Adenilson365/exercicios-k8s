@@ -15,4 +15,4 @@ spec:
       containers:
       - name: ubuntu
         image: ubuntu:latest
-        command: ["/bin/bash", "-c", "apt-get update && while true; do sleep 30; done"]
+        command: ["/bin/bash", "-c", "apt-get update && apt install stress-ng && while true; do sleep 30; done"]
