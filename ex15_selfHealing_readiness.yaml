@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-app
+  template:
+    metadata:
+      labels:
+        app: ubuntu-app
+    spec:
+      securityContext: 
+        runAsNonRoot: true
+        runAsUser: 1000 #roda com userid 1000 (nessa imagem é ubuntu)
+        runAsGroup: 1000
+      containers:
+      - name: ubuntu
+        image: ubuntu:24.10
+        command: ["/bin/bash", "-c", "touch $HOME/ready.txt && while true; do sleep 30; done"]
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 512Mi
+          limits: 
+            cpu: 1200m
+            memory: 1Gi
+        readinessProbe:
+          exec:
+            command: ["/bin/bash", "-c", "cat $HOME/ready.txt"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 1
+          successThreshold: 2
+          timeoutSeconds: 2

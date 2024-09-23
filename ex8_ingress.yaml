@@ -38,8 +38,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: knz.local.com
-      http:
+    - http:
         paths: 
           - path: /
             pathType: Prefix

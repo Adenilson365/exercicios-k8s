@@ -15,4 +15,45 @@ spec:
       containers:
       - name: ubuntu
         image: ubuntu:latest
-        command: ["/bin/bash", "-c", "apt-get update && apt install stress-ng && while true; do sleep 30; done"]
+        command: ["/bin/bash", "-c", "apt-get update && apt install stress-ng -y && while true; do sleep 30; done"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+          limits:
+            cpu: 200m 
+            memory: 500Mi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-ubuntu
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ubuntu
+  minReplicas: 1
+  maxReplicas: 12
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - periodSeconds: 15
+          type: Percent
+          value: 100
+    scaleDown:
+      stabilizationWindowSeconds: 30
+      policies:
+        - periodSeconds: 15
+          type: Percent
+          value: 20
+
+
