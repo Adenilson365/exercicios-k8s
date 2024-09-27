@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-cont
+        image: nginx:stable-alpine3.20-perl
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: vol-shared
+      - name: busy-cont
+        image: busybox:stable
+        resources: 
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        command: ["/bin/sh", "-c", "while true; do echo '<h1> Atualizado em:' $(date +%H:%M:%S)' </h1>' > /cache/index.html; sleep 2; done"]
+        volumeMounts:
+        - mountPath: /cache
+          name: vol-shared
+      volumes:
+      - name: vol-shared
+        emptyDir:
+          sizeLimit: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 32700
+  type: NodePort
